@@ -68,16 +68,13 @@
 <body>
 <script src="../enable-threads.js"></script>
 <script src="../detect-mobile.js"></script>
-<canvas id="canvas" class="app" oncontextmenu="event.preventDefault()" tabindex="-1" style="display:none;"></canvas>
+<canvas id="canvas" class="app" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
 <script>
 (function(){
 'use strict';
 
 if (window.MobileDetected)
   return;
-
-var canvas = document.getElementById('canvas');
-canvas.style.display = 'block';
 
 (function createOverlay() {
   var loading_overlay = document.createElement('div');
