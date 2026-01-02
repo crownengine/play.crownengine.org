@@ -102,10 +102,12 @@ if (window.MobileDetected)
   
   function resize() {
     var dpr = window.devicePixelRatio || 1;
-    loading_bar.width = Math.max(1, Math.floor(800 * dpr));
-    loading_bar.height = Math.max(1, Math.floor(100 * dpr));
-    loading_bar.style.width = loading_bar.width + 'px';
-    loading_bar.style.height = loading_bar.height + 'px';
+    var logical_width = 800;
+    var logical_height = 100;
+    loading_bar.width = Math.max(1, Math.floor(logical_width * dpr));
+    loading_bar.height = Math.max(1, Math.floor(logical_height * dpr));
+    loading_bar.style.width = logical_width + 'px';
+    loading_bar.style.height = logical_height + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     console.log("resize", loading_bar.width, loading_bar.height);
   }
