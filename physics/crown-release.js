@@ -13212,7 +13212,7 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var ASM_CONSTS = {
-  415790: () => { debugger; }
+  415806: () => { debugger; }
 };
 function crown_js_request_pointer_lock() { if (Module.canvas.requestPointerLock) { Module.canvas.requestPointerLock({ unadjustedMovement: true }); } }
 function crown_js_request_pointer_lock_fallback() { if (Module.canvas.requestPointerLock) { Module.canvas.requestPointerLock({ unadjustedMovement: false }); } }
