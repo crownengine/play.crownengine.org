@@ -18,7 +18,7 @@
         // web worker
         PACKAGE_PATH = encodeURIComponent(location.pathname.substring(0, location.pathname.lastIndexOf('/')) + '/');
       }
-      var PACKAGE_NAME = '/tmp/game/html5/wasm/release/01-physics/data.bin';
+      var PACKAGE_NAME = '/tmp/html5/wasm/release/01-physics/data.bin';
       var REMOTE_PACKAGE_BASE = 'data.bin';
       var REMOTE_PACKAGE_NAME = Module['locateFile']?.(REMOTE_PACKAGE_BASE, '') ?? REMOTE_PACKAGE_BASE;
       var REMOTE_PACKAGE_SIZE = metadata['remote_package_size'];
@@ -108,9 +108,9 @@ Module['FS_createPath']("/", "data", true, true);
           Module['FS_createDataFile'](name, null, data, true, true, true);
           Module['removeRunDependency'](`fp ${name}`);
           }
-          Module['removeRunDependency']('datafile_/tmp/game/html5/wasm/release/01-physics/data.bin');
+          Module['removeRunDependency']('datafile_/tmp/html5/wasm/release/01-physics/data.bin');
       }
-      Module['addRunDependency']('datafile_/tmp/game/html5/wasm/release/01-physics/data.bin');
+      Module['addRunDependency']('datafile_/tmp/html5/wasm/release/01-physics/data.bin');
 
       Module['preloadResults'] ??= {};
 
@@ -128,6 +128,6 @@ Module['FS_createPath']("/", "data", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/data/175a744495f1e9e6", "start": 0, "end": 300}, {"filename": "/data/1e5699c954a7cd5b", "start": 300, "end": 119762}, {"filename": "/data/25005db2cec769d1.stream", "start": 119762, "end": 1214033}, {"filename": "/data/31aeac6263f51813", "start": 1214033, "end": 1214275}, {"filename": "/data/38a241efa2a33cae", "start": 1214275, "end": 1334180}, {"filename": "/data/59eab20db8fd7280", "start": 1334180, "end": 9479701}, {"filename": "/data/5f85a4535e0b940f", "start": 9479701, "end": 9644964}, {"filename": "/data/707d91f869594147", "start": 9644964, "end": 9645240}, {"filename": "/data/761287a68fafa7c8", "start": 9645240, "end": 9645631}, {"filename": "/data/b60e9e61ad41f206", "start": 9645631, "end": 9738372}], "remote_package_size": 9738372});
+    loadPackage({"files": [{"filename": "/data/175a744495f1e9e6", "start": 0, "end": 300}, {"filename": "/data/1e5699c954a7cd5b", "start": 300, "end": 120110}, {"filename": "/data/25005db2cec769d1.stream", "start": 120110, "end": 1214381}, {"filename": "/data/31aeac6263f51813", "start": 1214381, "end": 1214623}, {"filename": "/data/38a241efa2a33cae", "start": 1214623, "end": 1334874}, {"filename": "/data/59eab20db8fd7280", "start": 1334874, "end": 9480744}, {"filename": "/data/5f85a4535e0b940f", "start": 9480744, "end": 9646352}, {"filename": "/data/707d91f869594147", "start": 9646352, "end": 9646628}, {"filename": "/data/761287a68fafa7c8", "start": 9646628, "end": 9647055}, {"filename": "/data/b60e9e61ad41f206", "start": 9647055, "end": 9740120}], "remote_package_size": 9740120});
 
   })();
