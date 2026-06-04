@@ -13607,13 +13607,13 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var ASM_CONSTS = {
-  417278: ($0) => { var saveDir = UTF8ToString($0); if (saveDir.charAt(0) != "/") saveDir = "/" + saveDir; Module.CrownSaveGame = Module.CrownSaveGame || {}; var state = Module.CrownSaveGame; if (state.mountDir == saveDir && state.ready) return; state.mountDir = saveDir; state.ready = 0; state.error = 0; state.syncing = 0; state.syncError = 0; function mkdirTree(dir) { var path = ""; var parts = dir.split("/"); for (var ii = 0; ii < parts.length; ++ii) { if (!parts[ii]) continue; path += "/" + parts[ii]; try { FS.mkdir(path); } catch (err) { } } } try { mkdirTree(saveDir); FS.mount(IDBFS, {}, saveDir); FS.syncfs(true, function(err) { state.error = err ? 1 : 0; state.ready = 1; }); } catch (err) { console.error(err); state.error = 1; state.ready = 1; } },  
- 418024: () => { return Module.CrownSaveGame && Module.CrownSaveGame.ready ? 1 : 0; },  
- 418095: () => { return Module.CrownSaveGame && !Module.CrownSaveGame.error ? 1 : 0; },  
- 418167: () => { var state = Module.CrownSaveGame || (Module.CrownSaveGame = {}); state.syncing = 1; state.syncError = 0; try { FS.syncfs(false, function(err) { state.syncError = err ? 1 : 0; state.syncing = 0; }); } catch (err) { console.error(err); state.syncError = 1; state.syncing = 0; } },  
- 418447: () => { return Module.CrownSaveGame && Module.CrownSaveGame.syncing ? 1 : 0; },  
- 418520: () => { var s = Module.CrownSaveGame; return s && !s.error && !s.syncError ? 1 : 0; },  
- 418600: () => { debugger; }
+  420030: ($0) => { var saveDir = UTF8ToString($0); if (saveDir.charAt(0) != "/") saveDir = "/" + saveDir; Module.CrownSaveGame = Module.CrownSaveGame || {}; var state = Module.CrownSaveGame; if (state.mountDir == saveDir && state.ready) return; state.mountDir = saveDir; state.ready = 0; state.error = 0; state.syncing = 0; state.syncError = 0; function mkdirTree(dir) { var path = ""; var parts = dir.split("/"); for (var ii = 0; ii < parts.length; ++ii) { if (!parts[ii]) continue; path += "/" + parts[ii]; try { FS.mkdir(path); } catch (err) { } } } try { mkdirTree(saveDir); FS.mount(IDBFS, {}, saveDir); FS.syncfs(true, function(err) { state.error = err ? 1 : 0; state.ready = 1; }); } catch (err) { console.error(err); state.error = 1; state.ready = 1; } },  
+ 420776: () => { return Module.CrownSaveGame && Module.CrownSaveGame.ready ? 1 : 0; },  
+ 420847: () => { return Module.CrownSaveGame && !Module.CrownSaveGame.error ? 1 : 0; },  
+ 420919: () => { var state = Module.CrownSaveGame || (Module.CrownSaveGame = {}); state.syncing = 1; state.syncError = 0; try { FS.syncfs(false, function(err) { state.syncError = err ? 1 : 0; state.syncing = 0; }); } catch (err) { console.error(err); state.syncError = 1; state.syncing = 0; } },  
+ 421199: () => { return Module.CrownSaveGame && Module.CrownSaveGame.syncing ? 1 : 0; },  
+ 421272: () => { var s = Module.CrownSaveGame; return s && !s.error && !s.syncError ? 1 : 0; },  
+ 421352: () => { debugger; }
 };
 function crown_js_request_pointer_lock() { if (Module.canvas.requestPointerLock) { Module.canvas.requestPointerLock({ unadjustedMovement: true }); } }
 function crown_js_request_pointer_lock_fallback() { if (Module.canvas.requestPointerLock) { Module.canvas.requestPointerLock({ unadjustedMovement: false }); } }
