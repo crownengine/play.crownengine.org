@@ -403,15 +403,31 @@ function dbg(...args) {
 })();
 
 function consumedModuleProp(prop) {
-  if (!Object.getOwnPropertyDescriptor(Module, prop)) {
-    Object.defineProperty(Module, prop, {
-      configurable: true,
-      set() {
-        abort(`Attempt to set \`Module.${prop}\` after it has already been processed.  This can happen, for example, when code is injected via '--post-js' rather than '--pre-js'`);
-
+  var value = Module[prop];
+  var msg = `Attempt to modify \`Module.${prop}\` after it has already been processed.  This can happen, for example, when code is injected via '--post-js' rather than '--pre-js'`;
+  if (Array.isArray(value)) {
+    value = new Proxy(value, {
+      set(target, key, val) {
+        abort(msg);
+        return false;
+      },
+      defineProperty(target, key, descriptor) {
+        abort(msg);
+        return false;
+      },
+      deleteProperty(target, key) {
+        abort(msg);
+        return false;
       }
     });
   }
+  Object.defineProperty(Module, prop, {
+    configurable: true,
+    get() { return value; },
+    set() {
+      abort(msg);
+    }
+  });
 }
 
 function makeInvalidEarlyAccess(name) {
@@ -624,6 +640,7 @@ if (ENVIRONMENT_IS_PTHREAD) {
         run();
       } else if (cmd == 2) {
         assert(msgData.pthread_ptr);
+        assert(wasmMemory, "CMD_RUN received before CMD_LOAD");
         // Call inside JS module to set up the stack frame for this pthread in JS module scope.
         // This needs to be the first thing that we do, as we cannot call to any C/C++ functions
         // until the thread stack is initialized.
@@ -666,7 +683,7 @@ if (ENVIRONMENT_IS_PTHREAD) {
     } catch(ex) {
       err(`worker: onmessage() captured an uncaught exception: ${ex}`);
       if (ex?.stack) err(ex.stack);
-      __emscripten_thread_crashed();
+      if (runtimeInitialized) __emscripten_thread_crashed();
       throw ex;
     }
   };
@@ -684,6 +701,8 @@ var runtimeExited = false;
 
 
 function updateMemoryViews() {
+  // When memory growth is disabled this function should be called exactly once.
+  assert(!HEAP8, 'updateMemoryViews should only be called once when ALLOW_MEMORY_GROWTH=0');
   var b = wasmMemory.buffer;
   HEAP8 = new Int8Array(b);
   HEAP16 = new Int16Array(b);
@@ -958,10 +977,8 @@ async function createWasm() {
 
     // We now have the Wasm module loaded up, keep a reference to the compiled module so we can post it to the workers.
     wasmModule = module;
-    removeRunDependency('wasm-instantiate');
     return wasmExports;
   }
-  addRunDependency('wasm-instantiate');
 
   // Prefer streaming instantiation if available.
   // Async compilation can be confusing when an error on the page overwrites Module
@@ -1543,7 +1560,6 @@ async function createWasm() {
 
 
 
-
   
   
   function establishStackSpace(pthread_ptr) {
@@ -1646,7 +1662,6 @@ async function createWasm() {
 
 
   var registerTLSInit = (tlsInitFunc) => PThread.tlsInitFunctions.push(tlsInitFunc);
-
 
   
     /**
@@ -1884,7 +1899,7 @@ var initRandomFill = () => {
     // This block is not needed on v19+ since crypto.getRandomValues is builtin
     if (ENVIRONMENT_IS_NODE) {
       var nodeCrypto = require('node:crypto');
-      return (view) => nodeCrypto.randomFillSync(view);
+      return (view) => (nodeCrypto.randomFillSync(view), 0);
     }
 
     // like with most Web APIs, we can't use Web Crypto API directly on shared memory,
@@ -4810,7 +4825,7 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
           // MAP_PRIVATE calls need not to be synced back to underlying fs
           return 0;
         }
-        var buffer = HEAPU8.slice(addr, addr + len);
+        var buffer = HEAPU8.subarray(addr, addr + len);
         FS.msync(stream, buffer, offset, len, flags);
       },
   getStreamFromFD(fd) {
@@ -9247,7 +9262,7 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
         GLctx.compressedTexImage2D(target, level, internalFormat, width, height, border, HEAPU8, data, imageSize);
         return;
       }
-      GLctx.compressedTexImage2D(target, level, internalFormat, width, height, border, HEAPU8.subarray((data), data+imageSize));
+      GLctx.compressedTexImage2D(target, level, internalFormat, width, height, border, HEAPU8.subarray(data, data + imageSize));
     };
 
   var _emscripten_glCompressedTexImage3D = (target, level, internalFormat, width, height, depth, border, imageSize, data) => {
@@ -9267,7 +9282,7 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
         GLctx.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, HEAPU8, data, imageSize);
         return;
       }
-      GLctx.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, HEAPU8.subarray((data), data+imageSize));
+      GLctx.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, HEAPU8.subarray(data, data + imageSize));
     };
 
   var _emscripten_glCompressedTexSubImage3D = (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data) => {
@@ -13252,16 +13267,19 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('onRealloc');
   ignoredModuleProp('onFree');
   ignoredModuleProp('onSbrkGrow');
+  ignoredModuleProp('onCOSCacheHit');
+  ignoredModuleProp('onCOSCacheMiss');
+  ignoredModuleProp('onCOSStore');
 }
 var ASM_CONSTS = {
-  420382: ($0) => { window.open(UTF8ToString($0), "_blank"); },  
- 420427: ($0) => { var saveDir = UTF8ToString($0); if (saveDir.charAt(0) != "/") saveDir = "/" + saveDir; Module.CrownSaveGame = Module.CrownSaveGame || {}; var state = Module.CrownSaveGame; if (state.mountDir == saveDir && state.ready) return; state.mountDir = saveDir; state.ready = 0; state.error = 0; state.syncing = 0; state.syncError = 0; function mkdirTree(dir) { var path = ""; var parts = dir.split("/"); for (var ii = 0; ii < parts.length; ++ii) { if (!parts[ii]) continue; path += "/" + parts[ii]; try { FS.mkdir(path); } catch (err) { } } } try { mkdirTree(saveDir); FS.mount(IDBFS, {}, saveDir); FS.syncfs(true, function(err) { state.error = err ? 1 : 0; state.ready = 1; }); } catch (err) { console.error(err); state.error = 1; state.ready = 1; } },  
- 421173: () => { return Module.CrownSaveGame && Module.CrownSaveGame.ready ? 1 : 0; },  
- 421244: () => { return Module.CrownSaveGame && !Module.CrownSaveGame.error ? 1 : 0; },  
- 421316: () => { var state = Module.CrownSaveGame || (Module.CrownSaveGame = {}); state.syncing = 1; state.syncError = 0; try { FS.syncfs(false, function(err) { state.syncError = err ? 1 : 0; state.syncing = 0; }); } catch (err) { console.error(err); state.syncError = 1; state.syncing = 0; } },  
- 421596: () => { return Module.CrownSaveGame && Module.CrownSaveGame.syncing ? 1 : 0; },  
- 421669: () => { var s = Module.CrownSaveGame; return s && !s.error && !s.syncError ? 1 : 0; },  
- 421749: () => { debugger; }
+  420206: ($0) => { window.open(UTF8ToString($0), "_blank"); },  
+ 420251: ($0) => { var saveDir = UTF8ToString($0); if (saveDir.charAt(0) != "/") saveDir = "/" + saveDir; Module.CrownSaveGame = Module.CrownSaveGame || {}; var state = Module.CrownSaveGame; if (state.mountDir == saveDir && state.ready) return; state.mountDir = saveDir; state.ready = 0; state.error = 0; state.syncing = 0; state.syncError = 0; function mkdirTree(dir) { var path = ""; var parts = dir.split("/"); for (var ii = 0; ii < parts.length; ++ii) { if (!parts[ii]) continue; path += "/" + parts[ii]; try { FS.mkdir(path); } catch (err) { } } } try { mkdirTree(saveDir); FS.mount(IDBFS, {}, saveDir); FS.syncfs(true, function(err) { state.error = err ? 1 : 0; state.ready = 1; }); } catch (err) { console.error(err); state.error = 1; state.ready = 1; } },  
+ 420997: () => { return Module.CrownSaveGame && Module.CrownSaveGame.ready ? 1 : 0; },  
+ 421068: () => { return Module.CrownSaveGame && !Module.CrownSaveGame.error ? 1 : 0; },  
+ 421140: () => { var state = Module.CrownSaveGame || (Module.CrownSaveGame = {}); state.syncing = 1; state.syncError = 0; try { FS.syncfs(false, function(err) { state.syncError = err ? 1 : 0; state.syncing = 0; }); } catch (err) { console.error(err); state.syncError = 1; state.syncing = 0; } },  
+ 421420: () => { return Module.CrownSaveGame && Module.CrownSaveGame.syncing ? 1 : 0; },  
+ 421493: () => { var s = Module.CrownSaveGame; return s && !s.error && !s.syncError ? 1 : 0; },  
+ 421573: () => { debugger; }
 };
 function crown_js_request_pointer_lock() { if (Module.canvas.requestPointerLock) { Module.canvas.requestPointerLock({ unadjustedMovement: true }); } }
 function crown_js_request_pointer_lock_fallback() { if (Module.canvas.requestPointerLock) { Module.canvas.requestPointerLock({ unadjustedMovement: false }); } }
@@ -14352,12 +14370,9 @@ function stackCheckInit() {
   writeStackCookie();
 }
 
-function run(args = programArgs) {
-
-  if (runDependencies > 0) {
-    dependenciesFulfilled = run;
-    return;
-  }
+async function run(args = programArgs) {
+  assert(!calledRun);
+  calledRun = true;
 
   if ((ENVIRONMENT_IS_PTHREAD)) {
     initRuntime();
@@ -14368,44 +14383,33 @@ function run(args = programArgs) {
 
   preRun();
 
-  // a preRun added a dependency, run will be called later
   if (runDependencies > 0) {
-    dependenciesFulfilled = run;
-    return;
+    await new Promise((resolve) => dependenciesFulfilled = resolve);
   }
 
-  function doRun() {
-    // run may have just been called through dependencies being fulfilled just in this very frame,
-    // or while the async setStatus time below was happening
-    assert(!calledRun);
-    calledRun = true;
-    Module['calledRun'] = true;
-
-    if (ABORT) return;
-
-    initRuntime();
-
-    preMain();
-
-    Module['onRuntimeInitialized']?.();
-    consumedModuleProp('onRuntimeInitialized');
-
-    var noInitialRun = Module['noInitialRun'] || false;
-    if (!noInitialRun) callMain(args);
-
-    postRun();
+  var setStatus = Module['setStatus'];
+  if (setStatus) {
+    setStatus('Running...');
+    // Yield to the event loop to allow the browser to paint "Running..."
+    await new Promise((resolve) => setTimeout(resolve, 1));
+    // Then we want to clear the status text, but only after the rest of this function runs.
+    setTimeout(setStatus, 1, '');
   }
 
-  if (Module['setStatus']) {
-    Module['setStatus']('Running...');
-    setTimeout(() => {
-      setTimeout(() => Module['setStatus'](''), 1);
-      doRun();
-    }, 1);
-  } else
-  {
-    doRun();
-  }
+  if (ABORT) return;
+
+  initRuntime();
+
+  preMain();
+
+  Module['onRuntimeInitialized']?.();
+  consumedModuleProp('onRuntimeInitialized');
+
+  var noInitialRun = Module['noInitialRun'] || false;
+  if (!noInitialRun) callMain(args);
+
+  postRun();
+
   checkStackCookie();
 }
 
@@ -14417,9 +14421,7 @@ if ((!(ENVIRONMENT_IS_PTHREAD))) {
 
 // With async instantation wasmExports is assigned asynchronously when the
 // instance is received.
-createWasm();
-
-run();
+createWasm().then(() => run());
 
 }
 
