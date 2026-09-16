@@ -18,7 +18,7 @@
         // web worker
         PACKAGE_PATH = encodeURIComponent(location.pathname.substring(0, location.pathname.lastIndexOf('/')) + '/');
       }
-      var PACKAGE_NAME = '/tmp/deploy/html5/wasm/release/01-physics/data.bin';
+      var PACKAGE_NAME = '/tmp/html5/wasm/release/01-physics/data.bin';
       var REMOTE_PACKAGE_BASE = 'data.bin';
       var REMOTE_PACKAGE_NAME = Module['locateFile'] ? Module['locateFile'](REMOTE_PACKAGE_BASE, '') : REMOTE_PACKAGE_BASE;
       var REMOTE_PACKAGE_SIZE = metadata['remote_package_size'];
@@ -101,9 +101,9 @@ Module['FS_createPath']("/", "data", true, true);
             // canOwn this data in the filesystem, it is a slice into the heap that will never change
         Module['FS_createDataFile'](name, null, data, true, true, true);
           }
-          Module['removeRunDependency']('datafile_/tmp/deploy/html5/wasm/release/01-physics/data.bin');
+          Module['removeRunDependency']('datafile_/tmp/html5/wasm/release/01-physics/data.bin');
       }
-      Module['addRunDependency']('datafile_/tmp/deploy/html5/wasm/release/01-physics/data.bin');
+      Module['addRunDependency']('datafile_/tmp/html5/wasm/release/01-physics/data.bin');
 
       if (!Module['preloadResults']) Module['preloadResults'] = {};
 
@@ -123,6 +123,6 @@ Module['FS_createPath']("/", "data", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/data/175a744495f1e9e6", "start": 0, "end": 341}, {"filename": "/data/1e5699c954a7cd5b", "start": 341, "end": 306283}, {"filename": "/data/25005db2cec769d1.stream", "start": 306283, "end": 1400554}, {"filename": "/data/31aeac6263f51813", "start": 1400554, "end": 1400796}, {"filename": "/data/38a241efa2a33cae", "start": 1400796, "end": 1707155}, {"filename": "/data/3cc2f4d08873f0d6", "start": 1707155, "end": 2000280}, {"filename": "/data/59eab20db8fd7280", "start": 2000280, "end": 10732326}, {"filename": "/data/5f85a4535e0b940f", "start": 10732326, "end": 11089731}, {"filename": "/data/707d91f869594147", "start": 11089731, "end": 11090048}, {"filename": "/data/761287a68fafa7c8", "start": 11090048, "end": 11090483}, {"filename": "/data/b60e9e61ad41f206", "start": 11090483, "end": 11365858}], "remote_package_size": 11365858});
+    loadPackage({"files": [{"filename": "/data/175a744495f1e9e6", "start": 0, "end": 341}, {"filename": "/data/1e5699c954a7cd5b", "start": 341, "end": 331652}, {"filename": "/data/25005db2cec769d1.stream", "start": 331652, "end": 1425923}, {"filename": "/data/31aeac6263f51813", "start": 1425923, "end": 1426165}, {"filename": "/data/38a241efa2a33cae", "start": 1426165, "end": 1757811}, {"filename": "/data/3cc2f4d08873f0d6", "start": 1757811, "end": 2075372}, {"filename": "/data/59eab20db8fd7280", "start": 2075372, "end": 10832751}, {"filename": "/data/5f85a4535e0b940f", "start": 10832751, "end": 11216734}, {"filename": "/data/707d91f869594147", "start": 11216734, "end": 11217051}, {"filename": "/data/761287a68fafa7c8", "start": 11217051, "end": 11217486}, {"filename": "/data/b60e9e61ad41f206", "start": 11217486, "end": 11517734}], "remote_package_size": 11517734});
 
   })();
