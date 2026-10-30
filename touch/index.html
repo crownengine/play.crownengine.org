@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style>
+  body {
+    margin: 0px;
+    background-color: black;
+  }
+  .app {
+    display: block;
+    border: 0px;
+    margin: 0px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+  }
+  #loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    color: #f0f0f0;
+    font: 14px sans-serif;
+    text-align: center;
+  }
+  #loading_progress {
+    width: min(480px, 80vw);
+    height: 2px;
+    background-color: #101010;
+    overflow: hidden;
+  }
+  #loading_progress > div {
+    width: var(--progress, 0%);
+    height: 100%;
+    background-color: #f0f0f0;
+  }
+  #loading_progress:not([aria-valuenow]) > div {
+    width: 2px;
+    animation: loading-pulse 1s ease-in-out infinite alternate;
+  }
+  @keyframes loading-pulse {
+    from { opacity: 0.25; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<canvas class="app" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+<div id="loading">
+  <img width="64" height="64" alt="Crown" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgd2lkdGg9IjY0IgogICBoZWlnaHQ9IjY0IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCA2NCA2NCIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgaWQ9InN2Zzg5NSIKICAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOmNjPSJodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9ucyMiCiAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyI+PGRlZnMKICAgaWQ9ImRlZnM4OTkiIC8+PG1ldGFkYXRhCiAgIGlkPSJtZXRhZGF0YTg4NSI+PHJkZjpSREY+PGNjOldvcmsKICAgICAgIHJkZjphYm91dD0iIj48ZGM6Zm9ybWF0PmltYWdlL3N2Zyt4bWw8L2RjOmZvcm1hdD48ZGM6dHlwZQogICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPjwvY2M6V29yaz48L3JkZjpSREY+PC9tZXRhZGF0YT4KPHN0eWxlCiAgIHR5cGU9InRleHQvY3NzIgogICBpZD0ic3R5bGU4ODciPgoJLnN0MHtmaWxsOiNGRkZGRkY7fQoJLnN0MXtmaWxsOm5vbmU7fQoJLnN0MntmaWxsOiMxRDJENTE7fQoJLnN0M3tmaWxsOiMxRDNFODQ7fQoJLnN0NHtmaWxsOiM0NzUwOUU7fQo8L3N0eWxlPgoKPGcKICAgaWQ9ImcxNjE0IgogICB0cmFuc2Zvcm09Im1hdHJpeCgwLjc4MDQ4NzgsMCwwLDAuNzgwNDg1MiwyLjM0MTQ2MzQsLTYuNTY3MTE5OWUtNykiPjxyZWN0CiAgICAgeD0iLTMiCiAgICAgeT0iMC4wMDAxMzczMjkxIgogICAgIHdpZHRoPSI4MiIKICAgICBoZWlnaHQ9IjgyIgogICAgIHJ5PSIwIgogICAgIGZpbGw9Im5vbmUiCiAgICAgc3Ryb2tlLXdpZHRoPSIxLjQzODI0IgogICAgIGlkPSJyZWN0ODg5IiAvPjxwYXRoCiAgICAgaWQ9InBhdGg5MDEiCiAgICAgc3R5bGU9ImZpbGw6I2YwZjBmMDtmaWxsLW9wYWNpdHk6MTtzdHJva2Utd2lkdGg6MS4xMDYyMSIKICAgICBkPSJtIDM4LjAxNjQ0MywzLjIwODE3MTNlLTQgYyAtMC4yMDE4NywtMC4wMDUzOTk5OTcgLTAuNDA0MSwwLjA1NzM4MDAwMjkgLTAuNjMwODYsMC4yMDExNzIwMDI4NyAtMC45NTEyOCwwLjU4NjEyIC0xLjkzNjc2LDEuMTM5MTI0OTggLTIuOTEwMTUsMS43MDMxMjQ5OCAtMTAuNDQxODk1LDYuMDI4NTcgLTIwLjg3MTI2NiwxMi4wNTgxMjMyIC0zMS4zMjQyMTYzLDE4LjA2NDQ1MzIgLTAuNTc1MiwwLjM0MjgzIC0wLjc2MzY3LDAuNjk2OTk5IC0wLjc2MzY3LDEuMzQ5NjEgMC4wMjIsNi41NTkzNyAwLjAwOTgsMTMuMTE4Mzc0IDAuMDA5OCwxOS42Nzc3MzQgbCAwLjAzNTE2LC0wLjAwMiB2IDMuNzgzMjAzIGMgLTAuMDExLDUuMzk3ODYgLTAuMDIyMiwxMC44MDcxNjggMCwxNi4yMDUwNzggMCwwLjMyMDc0IDAuMjc0OTEsMC43NjQzNDYgMC41NjI1LDAuOTQxNDA2IDEuNzQ3NywxLjA3Mjk4IDMuNTM5NDMsMi4wNzg3MDIgNS4zMjAzMTEsMy4xMDc0MjIgOS4wNTkyMzAzLDUuMjIwOTMgMTguMTMwODgwMywxMC40NDEwOSAyNy4yMDExNjUzLDE1LjY2MjExIDAuODA3NDgsMC40NjQ1NCAxLjYxMzc1LDEuMzA2NjQgMi40MTAxNiwxLjMwNjY0IDAuODI5NiwwIDEuNjYwNjMsLTAuODE5MjkgMi40OTAyMywtMS4yOTQ5MiA1LjIyMDk0LC0yLjk5NzYzIDEwLjQ0MTE3LC01Ljk5NTIzIDE1LjY2MjExLC05LjAwMzkwOCA1LjQ0MjE4LC0zLjEzMDMzIDEwLjg1MDIzLC02LjMwNDYzNSAxNi4zMTQ0NiwtOS4zOTA2MjUgMC45MTgxMSwtMC41MTk5NSAxLjIyOTM1LC0xLjA1MjAzNyAxLjIxODc1LC0yLjA5MTc5NyAtMC4wNTY2LC04LjA5NjkzIC0wLjA2ODQsLTE2LjE4MjQ0NyAtMC4wNjg0LC0yNC4yNzkyOTcgMCwtNC45MTEyOSAwLjAyMzcsLTkuODIxMjIyIDAuMDQ0OSwtMTQuNzMyNDIyIDAuMDExMSwtMC40NTM1NiAtMC4wMTE0LC0wLjgzMDM0MyAtMC40OTgwNSwtMS4wOTU3MDMgLTEuNjE0OTMsLTAuODg0OTEgLTMuMTg0NTEsLTEuODI2MDkgLTQuNzc3MzQsLTIuNzQ0MTQgLTUuOTUwOTcsLTMuNDI4OTYgLTExLjkxNDI1LC02Ljg2ODQ2NCAtMTcuODY1MjQsLTEwLjMwODU5NDIgLTMuOTM3ODQsLTIuMjc4NzIgLTcuODc1OTUsLTQuNTU4MDE2IC0xMS44MDI3MywtNi44NDc2NTU5OCAtMC4yMjY3NiwtMC4xMzIyOTUgLTAuNDI3MDQsLTAuMjA1NTEzIC0wLjYyODkxLC0wLjIxMDkzODAwMjg3IHoiIC8+PHBhdGgKICAgICBkPSJtIDUuODE0ODY5Myw0MC45OTY1MzcgYyAwLC01LjkzIDAuMDEsLTExLjg2IC0wLjAxLC0xNy43OSAwLC0wLjU5IDAuMTcsLTAuOTEgMC42OSwtMS4yMiA5LjQ1MDAwMDcsLTUuNDMgMTguODgwMDAwNywtMTAuODggMjguMzIwMDAwNywtMTYuMzMgMC44OCwtMC41MSAxLjc3LC0xLjAxIDIuNjMsLTEuNTQgMC40MSwtMC4yNiAwLjczLC0wLjIzIDEuMTQsMC4wMSAzLjU1LDIuMDcgNy4xMTAwMDMsNC4xMyAxMC42NzAwMDMsNi4xOSA1LjM4LDMuMTEgMTAuNzcsNi4yMiAxNi4xNSw5LjMyIDEuNDQsMC44MyAyLjg2LDEuNjggNC4zMiwyLjQ4IDAuNDQsMC4yNCAwLjQ2LDAuNTggMC40NSwwLjk5IC0wLjAyLDQuNDQgLTAuMDQsOC44OCAtMC4wNCwxMy4zMiAwLDcuMzIgMC4wMSwxNC42MyAwLjA2LDIxLjk1IDAuMDEsMC45NCAtMC4yNywxLjQyIC0xLjEsMS44OSAtNC45NCwyLjc5IC05LjgzLDUuNjYgLTE0Ljc1LDguNDkgLTQuNzIsMi43MiAtOS40NCw1LjQzIC0xNC4xNjAwMDMsOC4xNCAtMC43NSwwLjQzIC0xLjUsMS4xNyAtMi4yNSwxLjE3IC0wLjcyLDAgLTEuNDUsLTAuNzYgLTIuMTgsLTEuMTggLTguMiwtNC43MiAtMTYuNCwtOS40NCAtMjQuNTksLTE0LjE2IC0xLjYxMDAwMDcsLTAuOTMgLTMuMjMwMDAwNywtMS44NCAtNC44MTAwMDA3LC0yLjgxIC0wLjI2LC0wLjE2IC0wLjUxLC0wLjU2IC0wLjUxLC0wLjg1IC0wLjAyLC00Ljg4IC0wLjAxLC05Ljc3IDAsLTE0LjY1IHYgLTMuNDIgeiBtIDYwLjE4MDAwMzcsMy4yMSB2IC0xLjA2IGMgLTAuMDEsLTUuNzMgLTAuMDIsLTExLjQ1IC0wLjAzLC0xNy4xOCAwLC0wLjIgMC4wNSwtMC40MiAtMC4wMSwtMC41OSAtMC4xLC0wLjI3IC0wLjIyLC0wLjYxIC0wLjQ0LC0wLjc0IC00LjY2LC0yLjcyIC05LjM0LC01LjQxIC0xNC4wMiwtOC4xMSAtNC4yMiwtMi40NCAtOC40NSwtNC44NyAtMTIuNjUwMDAzLC03LjM0IC0wLjY1LC0wLjM4IC0xLjEzLC0wLjM0IC0xLjc1LDAuMDIgLTIuNDMsMS40NCAtNC44NywyLjg1IC03LjMxLDQuMjYgLTYuNDMsMy43MSAtMTIuODcsNy40MiAtMTkuMjksMTEuMTUgLTAuMjQsMC4xNCAtMC40NiwwLjUyIC0wLjQ2LDAuNzkgLTAuMDMsNi43NCAtMC4wNCwxMy40OSAtMC4wNSwyMC4yMyAwLDAuMjEgMC4wNCwwLjQxIDAuMDcsMC43IDAuMTgsLTAuMTMgMC4yOSwtMC4xOCAwLjM4LC0wLjI2IDEuNTgsLTEuNDIgMy4xMywtMi44NiA0LjcyLC00LjI3IDAuMTMsLTAuMTIgMC4yNiwtMC4yMyAwLjQyLC0wLjM3IDAuNTcsLTAuNSAxLjAxLC0wLjg4IDEuMjIsLTEuMDYgMi4zMSwtMS45NyAzLjgxLC0zLjE2IDUuNjcsLTQuOTkgMC4yOCwtMC4yNyAwLjczLC0wLjcyIDEuMjgsLTEuMzEgMC41MSwwLjU1IDUuNiw0Ljc3IDUuNiw0Ljc3IDAsMCAxNS40MDAwMDMsLTExLjU3IDE1Ljk1MDAwMywtMTIuMTEgMC41OCwwLjU1IDEuNTIsMS40NCAyLjY5LDIuNTEgNS40Myw0Ljk3IDEwLjExLDguNzEgMTQuMjMsMTEuOTkgMC44OCwwLjcgMi4xOSwxLjczIDMuNzgsMi45NyB6IgogICAgIGlkPSJwYXRoODkxIiAvPjwvZz4KCgoKCgoKCgoKPC9zdmc+Cg==">
+  <div id="loading_status" role="status">Downloading...</div>
+  <div id="loading_progress" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100"><div></div></div>
+</div>
+<script src="../enable-threads.js"></script>
+<script type='text/javascript'>
+  var loading = document.getElementById('loading');
+  var loadingStatus = document.getElementById('loading_status');
+  var loadingProgress = document.getElementById('loading_progress');
+  var loadingFailed = false;
+  var loadingPercent = 0;
+  function setLoadingProgress(percent) {
+    loadingPercent = Math.max(loadingPercent, percent);
+    loadingProgress.setAttribute('aria-valuenow', loadingPercent);
+    loadingProgress.style.setProperty('--progress', loadingPercent + '%');
+  }
+  function loadingError(message) {
+    loadingFailed = true;
+    loading.style.display = 'flex';
+    loadingStatus.textContent = 'Failed to load. Please reload the page.';
+    loadingProgress.removeAttribute('aria-valuenow');
+    console.error(message);
+  }
+  var Module = {
+    arguments: [],
+    preRun: [],
+    postRun: [],
+    canvas: (() => {
+      var canvas = document.getElementById('canvas');
+      canvas.addEventListener("webglcontextlost", (e) => {
+        alert('WebGL context lost. You will need to reload the page.');
+        e.preventDefault();
+      }, false);
+      return canvas;
+    })(),
+    onRuntimeInitialized: () => { Module.onSplashProgress(0, 1); },
+    onSplashProgress: (completed, total) => {
+      if (loadingFailed) return;
+      loadingStatus.textContent = 'Initializing...';
+      setLoadingProgress(50 + 50 * completed / total);
+      if (completed === total) {
+        requestAnimationFrame(() => {
+          if (!loadingFailed) loading.style.display = 'none';
+        });
+      }
+    },
+    setStatus: (text) => {
+      if (loadingFailed || !text) return;
+      loadingStatus.textContent = text;
+      var match = text.match(/\(([\d.]+)\/([\d.]+)\)/);
+      if (match && Number(match[2]) > 0) {
+        setLoadingProgress(Math.min(1, Number(match[1]) / Number(match[2])) * 50);
+      }
+    },
+    totalDependencies: 0,
+    monitorRunDependencies: (left) => {
+      Module.totalDependencies = Math.max(Module.totalDependencies, left);
+      Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : 'Preparing...');
+    },
+    onAbort: loadingError
+  };
+  window.onerror = loadingError;
+  window.addEventListener('error', (event) => {
+    if (event.target.tagName === 'SCRIPT')
+      loadingError('Failed to load ' + event.target.src);
+  }, true);
+  function startRuntime() {
+    var scripts = ['crown-release.js'];
+    scripts.unshift('data.js');
+    for (var src of scripts) {
+      var script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }
+  window.addEventListener('load', () => {
+    if (PerformanceObserver.supportedEntryTypes.includes('paint')) {
+      var paintObserver = new PerformanceObserver((list) => {
+        if (!list.getEntriesByName('first-contentful-paint').length) return;
+        paintObserver.disconnect();
+        startRuntime();
+      });
+      paintObserver.observe({ type: 'paint', buffered: true });
+    } else {
+      requestAnimationFrame(() => {
+        setTimeout(startRuntime, 0);
+      });
+    }
+  });
+</script>
+</body>
+</html>
